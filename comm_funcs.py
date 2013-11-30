@@ -1,9 +1,10 @@
 # -*- coding: utf-8 –*-
 import sys
-sys.setdefaultencoding('utf8')
 reload(sys)
 import os
+import fnmatch
 sys.path.append(os.getcwd())
+sys.setdefaultencoding('utf8')
 
 
 ### ### ### ### ### ### ### ### ### ### ### ### 
@@ -42,6 +43,68 @@ def helloworld():
 
 def listdir_fullpath(d):
     return [os.path.join(d, f) for f in os.listdir(d)]
+
+
+def walk_dir_rename_dir_to_lowercase(some_path):
+    print_ok("begin walk path:" + some_path )
+    for root, dirs, files in os.walk(some_path):
+        for one_dir in dirs:
+            ori_dir = one_dir
+            lower_dir = ori_dir.lower()
+            if ori_dir in lower_dir:
+                print_ok( "------" )
+                continue
+            print_error( one_dir )
+            ori_dir_full = os.path.join(root, ori_dir) 
+            lower_dir_full = os.path.join(root, lower_dir) 
+            cmd_mv = " mv  " + ori_dir_full + " " + lower_dir_full
+            print_ok( cmd_mv )
+            #os.system( cmd_mv )
+
+    pass
+
+def walk_dir_rename__just_file_to_lowercase_tmp_code(some_path,pattern = '*.html'):
+    print_ok("begin walk path:" + some_path )
+    for root, dirs, files in os.walk(some_path):
+        for filename in fnmatch.filter(files, pattern):
+            if filename.startswith("."):
+                print_error("invalid:" + one_filename )
+                continue
+            ori_fn = filename
+            lower_fn = ori_fn.lower()
+            if ori_fn in lower_fn:
+                continue
+            new_filename_full = os.path.join(root, lower_fn)
+            ori_filename_full = os.path.join(root, filename)
+            mv_cmd = "mv " + ori_filename_full + " " + new_filename_full
+            #print_ok( ori_filename_full )
+            print_ok( mv_cmd )
+            #os.system( mv_cmd )
+
+    return
+    for directory, dirnames, filenames in os.walk(some_path):
+        for one_dir in dirnames:        
+            for one_filename in filenames:
+                if one_filename.startswith("."):
+                    print_error("invalid:" + one_filename )
+                    continue
+                print_ok(join(directory, name) for name in filenames)
+                continue
+                ori_filename_full = directory + "/" + one_dir +"/" + one_filename
+                ori_fn = one_filename
+                lower_fn = ori_fn.lower()
+                new_filename_full = directory + "/" + one_dir +"/" + lower_fn
+                if ori_fn in lower_fn:
+                    continue
+                    #print_ok( directory + "/" + one_dir +"/" + one_filename )
+                else:
+                    print_error( ori_filename_full  )
+                    mv_cmd = "mv " + ori_filename_full + " " + new_filename_full
+                    print_ok( mv_cmd )
+                    #os.system( mv_cmd )
+
+
+
 
 
 def add_to_exist_file( file_name , line ):
@@ -124,7 +187,11 @@ def backup_and_write_new_file():
 
 if __name__ == "__main__":
     print os.environ['HOME']
-    print os.environ['GOPATH']
+    #print os.environ['GOPATH']
+    #/gobbs/app/views/default/
+    gopath = "/programming/go/gohome/src/gobbs_views/"
+    walk_dir_rename_dir_to_lowercase( gopath )
+    #walk_dir_rename__just_file_to_lowercase_tmp_code( gopath + "/" + "src/gobbs/app/views" )
 
 
     

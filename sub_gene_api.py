@@ -25,16 +25,62 @@ def __self_call_get_custom_part(contents_list):
     return content
 
 
+def ____self_call_method_save_edit(profile_instance, model_domain):
+    tmplt = """
+
+func SaveEdit(obj *PACKAGENAME_models.MCLASSNAME) bool {
+    DbGetDbm().Update(obj)
+    return true
+}
+
+    """
+    tmplt = tmplt.replace("CLASSNAME", profile_instance.ClassName)
+    tmplt = tmplt.replace("PACKAGENAME", profile_instance.PackageName)
+    return tmplt
+
+def ____self_call_get_method_remove_by_my_id(profile_instance, model_domain):
+    tmplt = """
+
+
+func RemoveByMyId(my_id string) {
+    var sql_str string
+    sql_str = " DELETE FROM " + PACKAGENAME_models.CLASSNAMETableName + "   WHERE my_id = ? "
+    ApiG_rawexec(sql_str, my_id)
+}
+
+
+
+    """
+    tmplt = tmplt.replace("CLASSNAME", profile_instance.ClassName)
+    tmplt = tmplt.replace("PACKAGENAME", profile_instance.PackageName)
+    return tmplt
+
+
+def ____self_call_get_method_delete_by_my_id(profile_instance, model_domain):
+    tmplt = """
+
+func DeleteByMyId(my_id string) {
+    var sql_str string
+    sql_str = " UPDATE " + PACKAGENAME_models.CLASSNAMETableName + " SET read_status = -1 WHERE my_id = ? "
+    ApiG_rawexec(sql_str, my_id)
+}
+
+    """
+    tmplt = tmplt.replace("CLASSNAME", profile_instance.ClassName)
+    tmplt = tmplt.replace("PACKAGENAME", profile_instance.PackageName)
+    return tmplt
+
 def ____self_call_get_method_select_one(profile_instance, model_domain):
     tmplt = """
 
 
-func DbGetOneCLASSNAME(id string) (*PACKAGENAME_models.MCLASSNAME, bool) {
+func DbGetOneCLASSNAME(my_id string) (*PACKAGENAME_models.MCLASSNAME, bool) {
     var item *PACKAGENAME_models.MCLASSNAME
     rb := false
     var results []interface{}
-    sql_str := " SELECT * FROM  " + PACKAGENAME_models.CLASSNAMETableName + "  WHERE XXXXXXX "
-    results, rb2 := ApiG_rawselect(news_models.MCLASSNAME{}, sql_str, id)
+    sql_str := " SELECT * FROM  " + PACKAGENAME_models.CLASSNAMETableName + "  WHERE 1=1 "
+    sql_str = sql_str + "  "
+    results, rb2 := ApiG_rawselect(PACKAGENAME_models.MCLASSNAME{}, sql_str, my_id)
     if rb2 {
         if len(results) > 0 {
             item = results[0].(*PACKAGENAME_models.MCLASSNAME)
@@ -57,7 +103,7 @@ def ____self_call_get_method_save_new(profile_instance, model_domain):
     tmplt = """
 
 func SaveNewCLASSNAME( CONDI_FIELDS ) bool {
-    //my_id := text_string.GetUniqueId()
+    //my_id = text_string.GetUniqueId()
     obj := PACKAGENAME_models.MCLASSNAME{
 
         FIELDS_VALUE
@@ -92,14 +138,18 @@ func SaveNewCLASSNAME( CONDI_FIELDS ) bool {
 def ____self_call_get_method_get_all(profile_instance, model_domain):
     tmplt = """
 
-func DbGetAllCLASSNAMEList(CONDI_FIELDS   , page_num, offset int) ([]*PACKAGENAME_models.MCLASSNAME, bool) {
+func DbGetAllCLASSNAMEList(CONDI_FIELDS   , limit, offset int) ([]*PACKAGENAME_models.MCLASSNAME, bool) {
     var items []*PACKAGENAME_models.MCLASSNAME
     rb := false
     var results []interface{}
     rb2 := false
     var sql_str string
-    sql_str = "SELECT * FROM " + PACKAGENAME_models.CLASSNAMETableName + " WHERE XXXXXX "
-    results, rb2 = ApiG_rawselect(PACKAGENAME_models.MCLASSNAME{}, sql_str, XXXXXX )
+    sql_str = "SELECT * FROM " + PACKAGENAME_models.CLASSNAMETableName + " WHERE 1 = 1 "
+    sql_str = sql_str + ""
+    sql_str = sql_str + " AND read_status = ? "
+    sql_str = sql_str + " ORDER BY ID DESC "
+    sql_str = sql_str + " LIMIT ? OFFSET ? "
+    results, rb2 = ApiG_rawselect(PACKAGENAME_models.MCLASSNAME{}, sql_str , limit, offset )
     if rb2 {
         for _, one := range results {
             items = append(items, one.(*PACKAGENAME_models.MCLASSNAME))
@@ -118,6 +168,31 @@ func DbGetAllCLASSNAMEList(CONDI_FIELDS   , page_num, offset int) ([]*PACKAGENAM
     return tmplt
     pass
 
+def ____self_call_get_imports(profile_instance, model_domain):
+    tmplt = """
+
+
+import (
+    //"github.com/coopernurse/gorp"
+    . "MODELDOMAIN/api"
+    fake_models "MODELDOMAIN/model/fake"
+    PACKAGENAME_models "MODELDOMAIN/model/PACKAGENAME"
+    text_string "MODELDOMAIN/utils/text_string"
+    //"github.com/coopernurse/gorp"
+    //. "golanger.com/middleware"
+    "log"
+    //mysql_utils "MODELDOMAIN/utils/mysql"
+    //sqlite_utils "MODELDOMAIN/utils/sqlite"
+)
+
+
+    """
+    tmplt = tmplt.replace("PACKAGENAME", profile_instance.PackageName)
+    tmplt = tmplt.replace("MODELDOMAIN", model_domain)
+
+    return tmplt
+    pass
+
 
 def ____self_call_get_method_isexits(profile_instance, model_domain):
     tmplt = """
@@ -125,7 +200,7 @@ def ____self_call_get_method_isexits(profile_instance, model_domain):
 func IsCLASSNAMEExist( CONDI_FIELDS ) bool {
     sql_str := " SELECT count( XXXXXX ) Count FROM " + PACKAGENAME_models.CLASSNAMETableName + " where  XXXXXX XXXXXXX "
     var results []interface{}
-    results, rb2 := ApiG_rawselect(fake_models.MTotalCount{}, sql_str, XXXXXX, XXXXXX, XXXXXX)
+    results, rb2 := ApiG_rawselect(fake_models.MTotalCount{}, sql_str )
     num := 0
     if rb2 {
         if len(results) > 0 {
@@ -152,15 +227,54 @@ func IsCLASSNAMEExist( CONDI_FIELDS ) bool {
     pass
 
 
+def ____self_call_only_reference():
+    tmplt = """
+
+import (
+    api_PACKAGENAME "domolo.com/api/PACKAGENAME"
+    PACKAGENAME_models "domolo.com/model/PACKAGENAME"
+    r "github.com/robfig/revel"
+    "log"
+)
+
+func init() {
+    r.TemplateFuncs["ViewGetAllCLASSNAMEList"] = func(read_status int, limit, offset int) []*PACKAGENAME_models.MCLASSNAME {
+        v, rb := api_PACKAGENAME.DbGetAllCLASSNAMEList(read_status, limit, offset)
+        if !rb {
+            log.Println("Error when  DbGetAllCLASSNAMEList")
+        }
+        return v
+    }
+
+    r.TemplateFuncs["ViewGetOneCLASSNAME"] = func(my_id string) *PACKAGENAME_models.MCLASSNAME {
+        v, rb := api_PACKAGENAME.DbGetOneCLASSNAME(my_id)
+        if !rb {
+            log.Println("Error when  DbGetOneCLASSNAME")
+        }
+        return v
+    }
+
+}
+
+
+    """
+    tmplt = tmplt.replace("PACKAGENAME", profile_instance.PackageName)
+    tmplt = tmplt.replace("CLASSNAME", profile_instance.ClassName)
+    return tmplt
 
 
 def __self_call_get_stands_methods(profile_instance, model_domain):
+    imports = ____self_call_get_imports(profile_instance, model_domain)
     isexists = ____self_call_get_method_isexits(profile_instance, model_domain)
     getall = ____self_call_get_method_get_all(profile_instance, model_domain)
     savenew = ____self_call_get_method_save_new(profile_instance, model_domain)
     selectone = ____self_call_get_method_select_one(profile_instance, model_domain)
+    deleteone = ____self_call_get_method_delete_by_my_id(profile_instance, model_domain)
+    removeone = ____self_call_get_method_remove_by_my_id(profile_instance, model_domain)
+    edit_save = ____self_call_method_save_edit(profile_instance, model_domain)
+    only_reference = ____self_call_only_reference(profile_instance, model_domain)
 
-    all_methods = isexists + getall + savenew + selectone
+    all_methods = imports + isexists + getall + savenew + selectone + deleteone + removeone + edit_save + only_reference
     return all_methods
 
 def __self_call_get_import(profile_instance, model_domain):
