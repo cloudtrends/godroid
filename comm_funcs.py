@@ -45,6 +45,14 @@ def listdir_fullpath(d):
     return [os.path.join(d, f) for f in os.listdir(d)]
 
 
+
+
+
+
+
+
+    pass
+
 def walk_dir_rename_dir_to_lowercase(some_path):
     print_ok("begin walk path:" + some_path )
     for root, dirs, files in os.walk(some_path):
@@ -131,6 +139,15 @@ def get_file_content_as_list( file_name ):
 
 def get_gopath():
     return os.environ['GOPATH']
+
+def check_and_get_go_path():
+    gopath = get_gopath()
+    if gopath is None or 0 == len(gopath):
+        print_error("ERROR: evn go path not set ")
+        sys.exit(1)
+    return gopath 
+
+
 def get_projects_str():
     gopath = get_gopath()
     if 0 == len(gopath):

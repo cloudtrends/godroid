@@ -9,6 +9,44 @@ import shutil
 import time
 import comm_funcs
 
+GoTemplateMagicSecondLine = "//magic_meta_v1_header_flag"
+
+GoTemplateAutoPartBegin = "//magic_meta_v1_auto_part_begin"
+GoTemplateAutoPartEnd = "//magic_meta_v1_auto_part_end"
+
+GoTemplateCustomPartBegin = "//magic_meta_v1_custom_part_begin"
+GoTemplateCustomPartEnd = "//magic_meta_v1_custom_part_end"
+
+# model profile config
+#=====================
+ModelProfileDirName = "model_profile"
+AlreadyGeneratedModelProfileName = "already_generated_model_profile.txt"
+
+
+GoEmptyFileTemplate="""package PACKAGENAME
+
+//magic_meta_v1_header_flag  version: v131117   generatedby: v131117
+
+//magic_meta_v1_auto_part_begin
+//magic_meta_v1_auto_part_end
+
+//magic_meta_v1_custom_part_begin
+//magic_meta_v1_custom_part_end
+
+    """
+
+
+
+class ClassColumnCfgTemplateProfile:
+    SqlName = ""
+    Type = ""
+    Length = ""
+    ShowName = ""
+
+class ClassCfgTemplate:
+    PackageName = ""
+    TableName = ""
+    ClassName = ""
 
 
 class ClassFileContent():
@@ -27,10 +65,16 @@ class ClassColumnProfile:
     SqlType = ""
     GoName = ""
     GoType = ""
+    ShowName = ""
 
 class ClassProfileCfg:
     def __init__(self):
         pass
+    IsModule = False
+    ModuleType = ""
+    ModuleName = ""
+    ControlCalssName = ""
+    
     PackageName = ""
     TableName = ""
     ClassName = ""
@@ -44,27 +88,6 @@ class ClassModelGorpApiGoFile:
         pass
 
 
-GoTemplateMagicSecondLine = "//magic_meta_v1_header_flag"
-
-GoTemplateAutoPartBegin = "//magic_meta_v1_auto_part_begin"
-GoTemplateAutoPartEnd = "//magic_meta_v1_auto_part_end"
-
-GoTemplateCustomPartBegin = "//magic_meta_v1_custom_part_begin"
-GoTemplateCustomPartEnd = "//magic_meta_v1_custom_part_end"
-
-
-
-GoEmptyFileTemplate="""package PACKAGENAME
-
-//magic_meta_v1_header_flag  version: v131117   generatedby: v131117
-
-//magic_meta_v1_auto_part_begin
-//magic_meta_v1_auto_part_end
-
-//magic_meta_v1_custom_part_begin
-//magic_meta_v1_custom_part_end
-
-    """
 
 def get_all_sql_fileds_params_str(profile_instance):
     int_str = ""
@@ -88,6 +111,40 @@ def get_all_sql_fileds_params_str(profile_instance):
         return str_str + " string"
 
 
+
+
+def get_all_golang_fileds_as_list(profile_instance):
+    return_txt = []
+    for one in profile_instance.ColumnsList:
+        return_txt.append( one.GoName )
+    return return_txt
+
+
+def get_one_sql_name_by_go_name(profile_instance, go_name ):
+    for one in profile_instance.ColumnsList:
+        if one.GoName == go_name:
+            return one.SqlName
+    return ""
+
+
+
+
+def get_one_go_name_by_sql_name(profile_instance, sql_name ):
+    for one in profile_instance.ColumnsList:
+        if one.SqlName == sql_name:
+            return one.GoName
+    return ""
+def get_one_show_name_by_sql_name(profile_instance, sql_name ):
+    for one in profile_instance.ColumnsList:
+        if one.SqlName == sql_name:
+            return one.ShowName
+    return ""
+
+def get_one_show_name_by_go_name(profile_instance, go_name ):
+    for one in profile_instance.ColumnsList:
+        if one.GoName == go_name:
+            return one.ShowName
+    return ""
 
 
 
@@ -178,12 +235,13 @@ def read_model_gorp_api_file(file_path):
 
 
 
-def check_and_create_model_domain_path(ModelDomainPath, gopath):
+def check_and_create_model_domain_path(model_domain, gopath):
     """
     check the model domain path 
     if the model domain not exit , sys.exit
     if the sub directories not exits , create them.
     """
+    ModelDomainPath = ModelDomainFullPath = gopath + "/src/" + model_domain
     comm_funcs.print_ok("......check_and_create_model_domain_path:" + ModelDomainPath)
     for c in ModelDomainPath:
         pass
@@ -218,6 +276,26 @@ def check_is_go_file_have_meta_flag(file_path):
         comm_funcs.print_error("PYTHON ERROR: " + file_path + " no custom part ! ")
         sys.exit(1)
     return True
+
+
+
+def get_full_profile_instance_path(profile_file):
+    if not profile_file.endswith(".cfg"):
+        comm_funcs.print_error("ERROR: profile file extension not match cfg:" + profile_file)
+        sys.exit(1)
+    ModelProfileModelsPath = comm_funcs.check_and_get_go_path() + "/" + ModelProfileDirName + "/models"
+    InstanceProfilePath = ModelProfileModelsPath + "/" + profile_file
+    if not os.path.exists(InstanceProfilePath):
+        comm_funcs.print_error("ERROR: profile file not exist:" + InstanceProfilePath)
+        sys.exit(1)
+    return InstanceProfilePath
+
+def check_model_profile_exist():
+    ModelProfilePath = comm_funcs.check_and_get_go_path() + "/" + ModelProfileDirName
+    if not os.path.exists( ModelProfilePath + "/" +  AlreadyGeneratedModelProfileName ):
+        comm_funcs.print_error("ERROR: already profile config not exist. ")
+        sys.exit(1)
+    return 
 
 
 

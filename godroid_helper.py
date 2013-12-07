@@ -39,6 +39,31 @@ def get_instance_profile_from_profile_file( profile_path ):
             continue
         if line.startswith("#"):
             continue
+        if "#" in line:
+            line = line[: line.find("#") ]
+        line = line.strip()
+        if 0 == len(line):
+            continue
+        #
+        if line.startswith("is_module"):
+            line = line.replace("is_module=", "")
+            if "true" in line:
+                tmp_cls.IsModule = True
+            else:
+                tmp_cls.IsModule = False
+            pass
+        if line.startswith("module_type"):
+            line = line.replace("module_type=", "")
+            tmp_cls.ModuleType = line.strip()
+            pass
+        if line.startswith("module_name"):
+            line = line.replace("module_name=", "")
+            tmp_cls.ModuleName = line.strip()
+            pass
+        if line.startswith("controller_class_name"):
+            line = line.replace("controller_class_name=", "")
+            tmp_cls.ControlCalssName = line.strip()
+            pass
         if line.startswith("table_name=") :
             line = line.replace("table_name=", "")
             tmp_cls.TableName = line.strip()
@@ -60,7 +85,14 @@ def get_instance_profile_from_profile_file( profile_path ):
             obj.SqlType = sql_parts[1]
             obj.GoName = go_parts[0]
             obj.GoType = go_parts[1]
+            if 3 <= len(lines):
+                part3 = lines[2]
+                parts3 = part3.split(",")
+                if 2 == len(parts3):
+                    if "ShowName" in parts3[0]:
+                        obj.ShowName = parts3[1].strip()
             tmp_cls.ColumnsList.append(obj)
+    
     return tmp_cls
 
 
@@ -180,6 +212,12 @@ def check_model_funcs_api_meta_flag( profile_instance, model_domain ):
 ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
 
 def __check_instance_profile_columns( contents ):
+    """
+    repelate columns
+
+    
+    """
+    maps_columns = {}
     for line in contents:
         if not line.startswith("columns="):
             continue
@@ -195,6 +233,11 @@ def __check_instance_profile_columns( contents ):
         second_parts = second_part.split(",")
         if not 2 == len(first_parts) and not 2 == len(second_parts):
             error(" cfg file columns not valid ( X,X;X,X ) :" + line )
+            sys.exit(1)
+        if first_parts[0] not in maps_columns.keys():
+            maps_columns[first_parts[0]] = first_parts[0]
+        else:
+            error(" cfg file columns DUPLICATED ( X,X;X,X ) :" + first_parts[0] )
             sys.exit(1)
 
     return True
@@ -250,3 +293,51 @@ def check_instance_profile(  instance_profile_path = None ):
     if __check_instance_profile_columns(contents_list):
         pass
     return True
+
+
+
+
+def walk_dir_add_magic_tag_to_files(some_path, pattern = '*.go'):
+    for root, dirs, files in os.walk(some_path):
+        for filename in fnmatch.filter(files, pattern):
+            if filename.startswith("."):
+                print_error("invalid:" + one_filename )
+                continue
+            #check magic tag
+            #if yes , continue
+            #else read content then add tag 
+            #backup original file and create new file
+            file_path =  os.path.join(root, filename)
+            if sub_gene_comm.check_is_go_file_have_meta_flag( file_path ):
+                continue
+            all_file_conent = ""
+            contents_list = comm_funcs.get_file_content_as_list( file_path )
+            all_original_code = ""
+            line_num = 0
+            for line in contents_list:
+                if 0 == line_num:
+                    line_num = line_num + 1
+                    continue
+                line_num = line_num + 1
+                all_original_code = all_original_code + line
+            all_file_conent = all_file_conent + contents_list[0] + "\n" 
+            # add empty line
+            all_file_conent = all_file_conent + "\n" 
+            all_file_conent = all_file_conent + GoTemplateMagicSecondLine  + "\n"
+            all_file_conent = all_file_conent + GoTemplateAutoPartBegin + "\n"
+            all_file_conent = all_file_conent + GoTemplateAutoPartEnd  + "\n" 
+            all_file_conent = all_file_conent + GoTemplateCustomPartBegin  + "\n"
+            all_file_conent =  all_file_conent + all_original_code
+            all_file_conent = all_file_conent + GoTemplateCustomPartEnd  + "\n"
+            sub_gene_comm.backup_go_file_in_curr_dir_and_touch_new_one( file_path )
+            comm_funcs.add_to_exist_file( file_path  , all_file_conent  )
+
+
+
+if "__main__" == __name__:
+    some_path = ""
+    walk_dir_add_magic_tag_to_files(some_path)
+    pass
+
+
+
