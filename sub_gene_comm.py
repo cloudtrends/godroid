@@ -47,6 +47,7 @@ class ClassCfgTemplate:
     PackageName = ""
     TableName = ""
     ClassName = ""
+    FuncName = ""
 
 
 class ClassFileContent():
@@ -70,12 +71,15 @@ class ClassColumnProfile:
 class ClassProfileCfg:
     def __init__(self):
         pass
+    IsDevMode = True 
     IsModule = False
+    GeneCompontents = ""
     ModuleType = ""
     ModuleName = ""
     ControlCalssName = ""
     
     PackageName = ""
+    FuncName = ""
     TableName = ""
     ClassName = ""
     ColumnsList = []
@@ -96,7 +100,16 @@ def get_all_sql_fileds_params_str(profile_instance):
         if one.SqlType.startswith("int"):
             int_str = int_str + one.SqlName + ", "
             pass
+        if one.SqlType.startswith("char"):
+            str_str = str_str + one.SqlName + ", " 
+            pass            
         if one.SqlType.startswith("varchar"):
+            str_str = str_str + one.SqlName + ", " 
+            pass
+        #if one.SqlType.startswith("text"):
+        #    str_str = str_str + one.SqlName + ", " 
+        #    pass
+        if one.SqlType.endswith("text"):
             str_str = str_str + one.SqlName + ", " 
             pass
     if len(str_str) > 3:
@@ -109,6 +122,7 @@ def get_all_sql_fileds_params_str(profile_instance):
         return int_str + " int "
     if len(int_str) < 3 and len(str_str) > 3:
         return str_str + " string"
+    return ""
 
 
 
@@ -165,7 +179,8 @@ def get_all_sql_fileds_str(profile_instance):
     return return_txt
 
 
-
+def touch_new_file(full_path_file):
+    os.system(" touch " + full_path_file)
 
 def backup_go_file_in_curr_dir_and_touch_new_one(FullPathModelFile):
     unique_file_name = FullPathModelFile + "_" + str( time.time() ) + ".bak" 

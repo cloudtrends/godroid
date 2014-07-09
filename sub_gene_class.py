@@ -28,9 +28,9 @@ def __self_call_get_table_name_const(contents_list, profile_instance):
 def __self_call_get_class(profile_instance):
     content = ""
     content = content + "type M"+ profile_instance.ClassName +" struct {" + "\n"
-    content = content + "    Id         int" + "\n"
+    content = content + "    Id         int" + " `db:\"id\"`  \n"
     for col in profile_instance.ColumnsList:
-        content = content + "    "+ col.GoName +"         "+  col.GoType +"\n"
+        content = content + "    "+ col.GoName +"         "+  col.GoType  + " `db:\""+ col.SqlName +"\"` " +"\n"
     content = content + "}" + "\n"
     #Id         int
     #MyId       string

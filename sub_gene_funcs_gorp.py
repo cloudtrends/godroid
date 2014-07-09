@@ -31,8 +31,8 @@ def __self_call_get_import(contents_list, profile_instance,model_domain):
         "github.com/coopernurse/gorp"
         . "golanger.com/middleware"
         funcs_utils "MODELDOMAIN/utils/funcs"
-        mysql_utils "MODELDOMAIN/utils/mysql"
-        sqlite_utils "MODELDOMAIN/utils/sqlite"
+        mysql_utils "MODELDOMAIN/db/mysql"
+        sqlite_utils "MODELDOMAIN/db/sqlite"
     )
     """
     tmplt = tmplt.replace("MODELDOMAIN", model_domain)

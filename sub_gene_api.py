@@ -28,7 +28,7 @@ def __self_call_get_custom_part(contents_list):
 def ____self_call_method_save_edit(profile_instance, model_domain):
     tmplt = """
 
-func SaveEdit(obj *PACKAGENAME_models.MCLASSNAME) bool {
+func SaveEditCLASSNAME(obj *PACKAGENAME_models.MCLASSNAME) bool {
     DbGetDbm().Update(obj)
     return true
 }
@@ -42,10 +42,11 @@ def ____self_call_get_method_remove_by_my_id(profile_instance, model_domain):
     tmplt = """
 
 
-func RemoveByMyId(my_id string) {
+func RemoveCLASSNAMEByMyId(my_id string) bool{
     var sql_str string
     sql_str = " DELETE FROM " + PACKAGENAME_models.CLASSNAMETableName + "   WHERE my_id = ? "
     ApiG_rawexec(sql_str, my_id)
+    return true
 }
 
 
@@ -59,10 +60,11 @@ func RemoveByMyId(my_id string) {
 def ____self_call_get_method_delete_by_my_id(profile_instance, model_domain):
     tmplt = """
 
-func DeleteByMyId(my_id string) {
+func DeleteCLASSNAMEByMyId(my_id string) bool{
     var sql_str string
     sql_str = " UPDATE " + PACKAGENAME_models.CLASSNAMETableName + " SET read_status = -1 WHERE my_id = ? "
     ApiG_rawexec(sql_str, my_id)
+    return true
 }
 
     """
@@ -76,17 +78,15 @@ def ____self_call_get_method_select_one(profile_instance, model_domain):
 
 func DbGetOneCLASSNAME(my_id string) (*PACKAGENAME_models.MCLASSNAME, bool) {
     var item *PACKAGENAME_models.MCLASSNAME
+    item = &PACKAGENAME_models.MCLASSNAME{}
     rb := false
-    var results []interface{}
     sql_str := " SELECT * FROM  " + PACKAGENAME_models.CLASSNAMETableName + "  WHERE 1=1 "
     sql_str = sql_str + "  "
-    sql_str = sql_str + " AND my_id = ? "
-    results, rb2 := ApiG_rawselect(PACKAGENAME_models.MCLASSNAME{}, sql_str, my_id)
-    if rb2 {
-        if len(results) > 0 {
-            item = results[0].(*PACKAGENAME_models.MCLASSNAME)
-            rb = true
-        }
+    sql_str = sql_str + " AND my_id = ? LIMIT 1 "
+    if err := DbGetDbm().SelectOne(item, sql_str, my_id ); nil == err {
+        rb = true
+    }else{
+        log.Printf("Error when DbGetOneCLASSNAME : %s", err.Error())
     }
     return item, rb
 }
@@ -106,8 +106,38 @@ def ____self_call_get_method_save_new(profile_instance, model_domain):
 /**
  ------------- HOW TO USE
 
+import (
+    //"domolo.com/gobbs/dcontroller"
+    //api_MODULETYPE_MODULENAME_PACKAGENAME "domolo.com/api/MODULETYPE/MODULENAME/PACKAGENAME"
+    //MODULETYPE_MODULENAME_PACKAGENAME_models "domolo.com/model/MODULETYPE/MODULENAME/PACKAGENAME"
+    "github.com/robfig/revel"
+    //"gobbs/app/routes"
+    "log"
+    //"runtime"
+)
 
-    func (c ControllerXXXX) AddSaveCLASSNAME(CONDIFIELDS_USER_INPUT) revel.Result {
+    func (c CONTROLLERNAME) AddSaveCLASSNAME(CONDIFIELDS_USER_INPUT)  {
+        //dpage := c.GetMBody()
+        //c.Validation.Required(title).Message("标题不能为空")
+        //c.Validation.Required(content).Message("内容不能为空")
+
+        //c.Validation.MinSize(title, 4).Message("标题最短为4个字符")
+        //if c.Validation.HasErrors() {
+        //    c.Validation.Keep()
+        //    c.FlashParams()
+        //    c.Flash.Error("信息不正确")
+
+        //    c.RenderArgs["dpage"] = dpage
+        //    log.Println("empty user input , so redirect to bbs ")
+            ////return c.Redirect(c.NewAnnoymousToBbs)
+            ////return c.Redirect("/go/post_to_flxxpro.html")
+        //    return c.Redirect(routes.CONTROLLERNAME.XXXXXXXXXXX(""))
+
+        ////}
+        //title = template.HTMLEscapeString(title)
+        //title = strings.TrimSpace(title)
+
+
         //read_status := 1
         //user_id := ""
         //ip := RevelGetIpAddress(c.Request)
@@ -117,14 +147,20 @@ def ____self_call_get_method_save_new(profile_instance, model_domain):
         //input_time := b
         //input_datetime := a + " " + b
         //input_time_seq := text_string.GetCurrentSeconds()
+        //GetUniqueId
 
         api_PACKAGENAME.SaveNewCLASSNAME(CONDI_FIELDS)
-        return c.Redirect(routes.ControllerXXXX.List(flxx_cat_id))
+        //c.RenderArgs["dpage"] = dpage
+        //return c.Redirect(routes.CONTROLLERNAME.List())
     }
+
 
 */
 func SaveNewCLASSNAME( CONDI_FIELDS ) bool {
-    my_id = text_string.GetUniqueId()
+    if 0 == len(my_id){
+        my_id = text_string.GetUniqueId()
+    }
+    
     //GetShortUniqueId
     obj := PACKAGENAME_models.MCLASSNAME{
 
@@ -142,6 +178,8 @@ func SaveNewCLASSNAME( CONDI_FIELDS ) bool {
 
 
     """
+    tmplt = tmplt.replace("MODULETYPE", profile_instance.ModuleType)
+    tmplt = tmplt.replace("MODULENAME", profile_instance.ModuleName)
     tmplt = tmplt.replace("PACKAGENAME", profile_instance.PackageName)
     tmplt = tmplt.replace("CLASSNAME", profile_instance.ClassName)
     condi_fields = sub_gene_comm.get_all_sql_fileds_params_str(profile_instance)
@@ -155,14 +193,12 @@ func SaveNewCLASSNAME( CONDI_FIELDS ) bool {
     condi_fields_user_input = condi_fields_user_input.replace("input_date","")
     condi_fields_user_input = condi_fields_user_input.replace("my_id","")
     condi_fields_user_input = condi_fields_user_input.replace("ip","")
-    condi_fields_user_input = condi_fields_user_input.replace("user_id","")
+    condi_fields_user_input = condi_fields_user_input.replace(" user_id","")
     condi_fields_user_input = condi_fields_user_input.replace("read_status","")
 
 
-
-
     tmplt = tmplt.replace("CONDIFIELDS_USER_INPUT" , condi_fields_user_input )
-
+    #
     fileds_value_pair = ""
     for one in profile_instance.ColumnsList:
         tmp_one_fields = one.GoName + "    :    " + one.SqlName + ", "
@@ -177,26 +213,59 @@ func SaveNewCLASSNAME( CONDI_FIELDS ) bool {
 def ____self_call_get_method_get_all(profile_instance, model_domain):
     tmplt = """
 
-func DbGetAllCLASSNAMEList(CONDI_FIELDS   , limit, offset int) ([]*PACKAGENAME_models.MCLASSNAME, bool) {
-    var items []*PACKAGENAME_models.MCLASSNAME
+func DbGetAllCLASSNAMEList(CONDI_FIELDS   , limit, offset int) (*[]PACKAGENAME_models.MCLASSNAME, bool) {
+    var items []PACKAGENAME_models.MCLASSNAME
     rb := false
-    var results []interface{}
-    rb2 := false
     var sql_str string
     sql_str = "SELECT * FROM " + PACKAGENAME_models.CLASSNAMETableName + " WHERE 1 = 1 "
     sql_str = sql_str + ""
     sql_str = sql_str + " AND read_status = ? "
     sql_str = sql_str + " ORDER BY ID DESC "
     sql_str = sql_str + " LIMIT ? OFFSET ? "
-    results, rb2 = ApiG_rawselect(PACKAGENAME_models.MCLASSNAME{}, sql_str , limit, offset )
-    if rb2 {
-        for _, one := range results {
-            items = append(items, one.(*PACKAGENAME_models.MCLASSNAME))
-        }
+    if _, err := DbGetDbm().Select(&items, sql_str, read_status, limit, offset); nil == err {
         rb = true
+    }else{
+        log.Printf("Error when DbGetAllCLASSNAMEList:%s", err.Error())
     }
-    return items, rb
+    return &items, rb
 }
+
+func DbGetAllCLASSNAME(limit, offset int) (*[]PACKAGENAME_models.MCLASSNAME, bool) {
+    var items []PACKAGENAME_models.MCLASSNAME
+    var sql_str string
+    rb := false
+    sql_str = "SELECT * FROM " + PACKAGENAME_models.CLASSNAMETableName + " WHERE 1 = 1 "
+    sql_str = sql_str + ""
+    sql_str = sql_str + " AND read_status = 1 "
+    sql_str = sql_str + " ORDER BY ID DESC "
+    sql_str = sql_str + " LIMIT ? OFFSET ? "
+
+    if _, err := DbGetDbm().Select(&items, sql_str,  limit, offset); nil == err {
+        rb = true
+    }else{
+        log.Printf("Error when DbGetAllCLASSNAME:%s", err.Error())
+    }
+    return &items, rb
+}
+
+func DbGetAllCLASSNAMEListGeneral( read_status, limit, offset int) (*[]PACKAGENAME_models.MCLASSNAME, bool) {
+    var items []PACKAGENAME_models.MCLASSNAME
+    rb := false
+    var sql_str string
+    sql_str = "SELECT * FROM " + PACKAGENAME_models.CLASSNAMETableName + " WHERE 1 = 1 "
+    sql_str = sql_str + ""
+    sql_str = sql_str + " AND read_status = ? "
+    sql_str = sql_str + " ORDER BY ID DESC "
+    sql_str = sql_str + " LIMIT ? OFFSET ? "
+    if _, err := DbGetDbm().Select(&items, sql_str, read_status, limit, offset); nil == err {
+        rb = true
+    }else{
+        log.Printf("Error when DbGetAllCLASSNAMEListGeneral:%s", err.Error())
+    }
+    return &items, rb
+}
+
+
 
     """
     tmplt = tmplt.replace("PACKAGENAME", profile_instance.PackageName)
@@ -214,7 +283,7 @@ def ____self_call_get_imports(profile_instance, model_domain):
 import (
     //"github.com/coopernurse/gorp"
     . "MODELDOMAIN/api"
-    fake_models "MODELDOMAIN/model/fake"
+    //fake_models "MODELDOMAIN/model/fake"
     PACKAGENAME_models "MODELDOMAIN/model/PACKAGENAME"
     text_string "MODELDOMAIN/utils/text_string"
     //"github.com/coopernurse/gorp"
@@ -237,17 +306,12 @@ def ____self_call_get_method_isexits(profile_instance, model_domain):
     tmplt = """
 
 func IsCLASSNAMEExist( CONDI_FIELDS ) bool {
-    sql_str := " SELECT count( XXXXXX ) Count FROM " + PACKAGENAME_models.CLASSNAMETableName + " where  XXXXXX XXXXXXX "
-    var results []interface{}
-    results, rb2 := ApiG_rawselect(fake_models.MTotalCount{}, sql_str )
-    num := 0
-    if rb2 {
-        if len(results) > 0 {
-            fake_obj := results[0].(*fake_models.MTotalCount)
-            num = fake_obj.Count
-        }
+    sql_str := " SELECT count( id ) Count FROM " + PACKAGENAME_models.CLASSNAMETableName + " where  XXXXXX XXXXXXX "
+    count, err := DbGetDbm().SelectInt(sql_str)
+    if err != nil {
+        log.Printf("Error when SelectInt :%s", err)
     }
-    if num > 0 {
+    if count > 0 {
         return true
     }
     return false
@@ -300,13 +364,13 @@ import (
 
 func init() {
  
-    //r.TemplateFuncs["ViewGetAllCLASSNAMEList"] = func(read_status int, limit, offset int) []*PACKAGENAME_models.MCLASSNAME {
-    //    v, rb := api_PACKAGENAME.DbGetAllCLASSNAMEList(read_status, limit, offset)
-    //    if !rb {
-    //        log.Println("Error when  DbGetAllCLASSNAMEList")
-    //    }
-    //    return v
-    //}
+    r.TemplateFuncs["ViewGetAllCLASSNAMEListGeneral"] = func(read_status int, limit, offset int) *[]PACKAGENAME_models.MCLASSNAME {
+        v, rb := api_PACKAGENAME.DbGetAllCLASSNAMEListGeneral(read_status, limit, offset)
+        if !rb {
+            log.Println("Error when  DbGetAllCLASSNAMEListGeneral")
+        }
+        return v
+    }
 
 
     r.TemplateFuncs["ViewGetOneEmptyCLASSNAMEObj"] = func() *PACKAGENAME_models.MCLASSNAME {

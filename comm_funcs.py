@@ -113,7 +113,8 @@ def walk_dir_rename__just_file_to_lowercase_tmp_code(some_path,pattern = '*.html
 
 
 
-
+def remove_all_html_files_in_dir(dir_name):
+    os.system( "rm -f " + dir_name + " *.html " )
 
 def add_to_exist_file( file_name , line ):
     with open( file_name , "r+U") as f:
