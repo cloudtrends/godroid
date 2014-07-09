@@ -107,9 +107,9 @@ def ____self_call_get_method_save_new(profile_instance, model_domain):
  ------------- HOW TO USE
 
 import (
-    //"domolo.com/gobbs/dcontroller"
-    //api_MODULETYPE_MODULENAME_PACKAGENAME "domolo.com/api/MODULETYPE/MODULENAME/PACKAGENAME"
-    //MODULETYPE_MODULENAME_PACKAGENAME_models "domolo.com/model/MODULETYPE/MODULENAME/PACKAGENAME"
+    //"XXXXXXXXXXX.com/gobbs/dcontroller"
+    //api_MODULETYPE_MODULENAME_PACKAGENAME "XXXXXXXXXXX.com/api/MODULETYPE/MODULENAME/PACKAGENAME"
+    //MODULETYPE_MODULENAME_PACKAGENAME_models "XXXXXXXXXXX.com/model/MODULETYPE/MODULENAME/PACKAGENAME"
     "github.com/robfig/revel"
     //"gobbs/app/routes"
     "log"

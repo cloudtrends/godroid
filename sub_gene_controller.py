@@ -17,16 +17,14 @@ def __self_call_get_admin_packages_part(profile_instance, model_domain):
     tmplt = """
 
 import (
-    //"domolo.com/gobbs/dcontroller"
-    //api_PACKAGENAME "domolo.com/api/PACKAGENAME"
-    //PACKAGENAME_models "domolo.com/model/PACKAGENAME"
     "github.com/robfig/revel"
     "log"
     "runtime"
-    . "domolo.com/revel_helper"
+    . "MODELDOMAIN/revel_helper"
 )
 
     """
+    tmplt = tmplt.replace("MODELDOMAIN", model_domain)
     tmplt = tmplt.replace("CLASSNAME", profile_instance.ClassName)
     tmplt = tmplt.replace("PACKAGENAME", profile_instance.PackageName)
     return tmplt
@@ -37,16 +35,14 @@ def __self_call_get_packages_part(profile_instance, model_domain):
     tmplt = """
 
 import (
-    //"domolo.com/gobbs/dcontroller"
-    //api_PACKAGENAME "domolo.com/api/PACKAGENAME"
-    //PACKAGENAME_models "domolo.com/model/PACKAGENAME"
     "github.com/robfig/revel"
     "log"
-    . "domolo.com/drevel"
+    . "MODELDOMAIN/drevel"
 )
 
 
     """
+    tmplt = tmplt.replace("MODELDOMAIN", model_domain)
     tmplt = tmplt.replace("CLASSNAME", profile_instance.ClassName)
     tmplt = tmplt.replace("PACKAGENAME", profile_instance.PackageName)
     return tmplt
