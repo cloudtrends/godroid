@@ -80,7 +80,7 @@ func DbGetOneCLASSNAME(my_id string) (*PACKAGENAME_models.MCLASSNAME, bool) {
     var item *PACKAGENAME_models.MCLASSNAME
     item = &PACKAGENAME_models.MCLASSNAME{}
     rb := false
-    sql_str := " SELECT * FROM  " + PACKAGENAME_models.CLASSNAMETableName + "  WHERE 1=1 "
+    sql_str := " SELECT ALLSQLFIELDS FROM  " + PACKAGENAME_models.CLASSNAMETableName + "  WHERE 1=1 "
     sql_str = sql_str + "  "
     sql_str = sql_str + " AND my_id = ? LIMIT 1 "
     if err := DbGetDbm().SelectOne(item, sql_str, my_id ); nil == err {
@@ -92,6 +92,14 @@ func DbGetOneCLASSNAME(my_id string) (*PACKAGENAME_models.MCLASSNAME, bool) {
 }
 
     """
+    #ALLSQLFIELDS
+
+    #godroid_helper.
+    #get_all_sql_fileds_str
+
+    sql_fields_str = sub_gene_comm.get_all_sql_fileds_str( profile_instance )
+    tmplt = tmplt.replace("ALLSQLFIELDS", sql_fields_str)
+
     tmplt = tmplt.replace("CLASSNAME", profile_instance.ClassName)
     tmplt = tmplt.replace("PACKAGENAME", profile_instance.PackageName)
     return tmplt
@@ -217,7 +225,7 @@ func DbGetAllCLASSNAMEList(CONDI_FIELDS   , limit, offset int) (*[]PACKAGENAME_m
     var items []PACKAGENAME_models.MCLASSNAME
     rb := false
     var sql_str string
-    sql_str = "SELECT * FROM " + PACKAGENAME_models.CLASSNAMETableName + " WHERE 1 = 1 "
+    sql_str = "SELECT ALLSQLFIELDS FROM " + PACKAGENAME_models.CLASSNAMETableName + " WHERE 1 = 1 "
     sql_str = sql_str + ""
     sql_str = sql_str + " AND read_status = ? "
     sql_str = sql_str + " ORDER BY ID DESC "
@@ -234,7 +242,7 @@ func DbGetAllCLASSNAME(limit, offset int) (*[]PACKAGENAME_models.MCLASSNAME, boo
     var items []PACKAGENAME_models.MCLASSNAME
     var sql_str string
     rb := false
-    sql_str = "SELECT * FROM " + PACKAGENAME_models.CLASSNAMETableName + " WHERE 1 = 1 "
+    sql_str = "SELECT ALLSQLFIELDS FROM " + PACKAGENAME_models.CLASSNAMETableName + " WHERE 1 = 1 "
     sql_str = sql_str + ""
     sql_str = sql_str + " AND read_status = 1 "
     sql_str = sql_str + " ORDER BY ID DESC "
@@ -252,7 +260,7 @@ func DbGetAllCLASSNAMEListGeneral( read_status, limit, offset int) (*[]PACKAGENA
     var items []PACKAGENAME_models.MCLASSNAME
     rb := false
     var sql_str string
-    sql_str = "SELECT * FROM " + PACKAGENAME_models.CLASSNAMETableName + " WHERE 1 = 1 "
+    sql_str = "SELECT ALLSQLFIELDS FROM " + PACKAGENAME_models.CLASSNAMETableName + " WHERE 1 = 1 "
     sql_str = sql_str + ""
     sql_str = sql_str + " AND read_status = ? "
     sql_str = sql_str + " ORDER BY ID DESC "
@@ -268,6 +276,9 @@ func DbGetAllCLASSNAMEListGeneral( read_status, limit, offset int) (*[]PACKAGENA
 
 
     """
+    sql_fields_str = sub_gene_comm.get_all_sql_fileds_str( profile_instance )
+    tmplt = tmplt.replace("ALLSQLFIELDS", sql_fields_str)
+
     tmplt = tmplt.replace("PACKAGENAME", profile_instance.PackageName)
     tmplt = tmplt.replace("CLASSNAME", profile_instance.ClassName)
     #condi_fields = sub_gene_comm.get_all_sql_fileds_str(profile_instance)

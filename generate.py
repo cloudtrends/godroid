@@ -149,6 +149,10 @@ if __name__ == "__main__":
     gopath = comm_funcs.check_and_get_go_path()
     sub_gene_comm.check_model_profile_exist()
     run_mode = sys.argv[1]
+    if "dev" not in run_mode and "prod" not in run_mode:
+        help()
+        sys.exit(1)
+
     profile_file = sys.argv[2]
     model_domain = sys.argv[3]
     generate_components = sys.argv[4]

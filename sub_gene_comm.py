@@ -94,6 +94,12 @@ class ClassModelGorpApiGoFile:
 
 
 def get_all_sql_fileds_params_str(profile_instance):
+    '''
+    this function used for : golang code , auto set fields as golang parameters.
+                by append with : string  or  int  variables type
+    :param profile_instance:
+    :return:
+    '''
     int_str = ""
     str_str = ""
     for one in profile_instance.ColumnsList:
